@@ -10,6 +10,11 @@ import (
 	"github.com/maxnitze/aoc-2023/internal/common"
 )
 
+var firstDigitRe = regexp.MustCompile("^[^\\d]*(\\d).*$")
+var lastDigitRe = regexp.MustCompile("^.*(\\d)[^\\d]*$")
+var firstSpelledOutDigitRe = regexp.MustCompile("^(.*?)(one|two|three|four|five|six|seven|eight|nine)(.*)$")
+var lastSpelledOutDigitRe = regexp.MustCompile("^(.*)(one|two|three|four|five|six|seven|eight|nine)(.*?)$")
+
 func Solve(input string) (*common.Result, error) {
 	if input == "" {
 		return nil, errors.New("no input given")
@@ -28,20 +33,34 @@ func Solve(input string) (*common.Result, error) {
 }
 
 func part1(input string) (*common.PartResult, error) {
-	firstDigitRe := regexp.MustCompile("^[^\\d]*(\\d).*$")
-	lastDigitRe := regexp.MustCompile("^.*(\\d)[^\\d]*$")
+	return calibrationValueFromLines(input, false)
+}
 
+func part2(input string) (*common.PartResult, error) {
+	return calibrationValueFromLines(input, true)
+}
+
+func calibrationValueFromLines(input string, replaceSpelledOutDigits bool) (*common.PartResult, error) {
 	fullCalibrationValue := 0
 	for _, line := range strings.Split(input, "\n") {
 		if line == "" {
 			continue
 		}
 
-		firstDigitMatch := firstDigitRe.FindStringSubmatch(line)
+		var firstDigitLine, lastDigitLine string
+		if replaceSpelledOutDigits {
+			firstDigitLine = replaceSpelledOutDigit(line, firstSpelledOutDigitRe)
+			lastDigitLine = replaceSpelledOutDigit(line, lastSpelledOutDigitRe)
+		} else {
+			firstDigitLine = line
+			lastDigitLine = line
+		}
+
+		firstDigitMatch := firstDigitRe.FindStringSubmatch(firstDigitLine)
 		if len(firstDigitMatch) != 2 {
 			return nil, errors.New(fmt.Sprintf("failed to parse first digit from line '%s'", line))
 		}
-		lastDigitMatch := lastDigitRe.FindStringSubmatch(line)
+		lastDigitMatch := lastDigitRe.FindStringSubmatch(lastDigitLine)
 		if len(lastDigitMatch) != 2 {
 			return nil, errors.New(fmt.Sprintf("failed to parse last digit from line '%s'", line))
 		}
@@ -57,6 +76,23 @@ func part1(input string) (*common.PartResult, error) {
 	return &common.PartResult{Message: message, Value: fullCalibrationValue}, nil
 }
 
-func part2(input string) (*common.PartResult, error) {
-	return &common.PartResult{Message: "Not Implemented Yet", Value: -1}, nil
+var textToNumber = map[string]int{
+	"one":   1,
+	"two":   2,
+	"three": 3,
+	"four":  4,
+	"five":  5,
+	"six":   6,
+	"seven": 7,
+	"eight": 8,
+	"nine":  9,
+}
+
+func replaceSpelledOutDigit(line string, regex *regexp.Regexp) string {
+	spelledOutDigitMatch := regex.FindStringSubmatch(line)
+	if len(spelledOutDigitMatch) == 4 {
+		return fmt.Sprintf("%s%d%s", spelledOutDigitMatch[1], textToNumber[spelledOutDigitMatch[2]], spelledOutDigitMatch[3])
+	} else {
+		return line
+	}
 }
