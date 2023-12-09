@@ -9,6 +9,7 @@ import (
 
 	"github.com/maxnitze/aoc-2023/internal/common"
 	"github.com/maxnitze/aoc-2023/internal/day1"
+	"github.com/maxnitze/aoc-2023/internal/day2"
 )
 
 func main() {
@@ -27,6 +28,8 @@ func main() {
 	switch day {
 	case 1:
 		result, err = day1.Solve(readInput(inputFilePath))
+	case 2:
+		result, err = day2.Solve(readInput(inputFilePath), &day2.BagLoad{Red: 12, Green: 13, Blue: 14})
 	default:
 		err = errors.New(fmt.Sprintf("Day %d out of range!", day))
 	}
