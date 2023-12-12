@@ -1,6 +1,6 @@
-# Advent Of Code 2023 -- Day 1
+# Advent Of Code 2023 -- Day 2
 
-<https://adventofcode.com/2023/day/1>
+<https://adventofcode.com/2023/day/2>
 
 ## Part 1
 
